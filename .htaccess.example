@@ -3,10 +3,10 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 
 #Strip the trailing slash
-RewriteRule ^(.+)/$ http://example.org/awesome/$1 [R=301,L]
+RewriteRule ^(.+)/$ http://example.org/law-apps/$1 [R=301,L]
 
 RewriteRule ^api index.php [L,QSA]
-RewriteRule ^scan web/scan.html [L,QSA]
+RewriteRule ^search web/search.html [L,QSA]
 RewriteRule ^feed web/feed.php [L,QSA]
 RewriteRule ^css\/(.*) web/css/$1 [L,QSA]
 RewriteRule ^images\/(.*) web/images/$1 [L,QSA]
