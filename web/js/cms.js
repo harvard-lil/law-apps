@@ -5,6 +5,7 @@ $(document).ready(function() {
   $('#hide-results').on("click", function(event){
 	  $('#search-results, #hide-results').fadeOut();
   });
+  
   $('#search-awesome').submit(function() {
 		var query = $("#query").val();
 		$.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/search?callback=?&limit=45&filter=_all:" + query, function(data) {
@@ -18,6 +19,16 @@ $(document).ready(function() {
 		});
 		return false;
 	});
+	
+	$('dd a').on("click", function(event) {
+		var link = $(this).attr('href');
+		var url = "http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/click";
+      
+    $.post(url, {link: link}, function(data) {
+      $('#response').html('<p>clicked ' + link + '</p>');
+    });
+	});
+	
 });
 
 function showResults(data){ 

@@ -16,6 +16,7 @@ $f3->set('AUTOLOAD', $autoload_path);
 // API business
 $f3->route('GET /api/item/@item_id', 'Item->get_single');
 $f3->route('GET /api/item/scrape', 'Item->scrape');
+$f3->route('POST /api/item/click', 'Item->click');
 $f3->route('POST /api/item', 'Item->create');
 $f3->route('GET /api/item', 'Item->create');
 $f3->route('GET /api/item/search', 'Item->search');

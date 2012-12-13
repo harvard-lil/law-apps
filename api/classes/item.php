@@ -87,7 +87,7 @@ class Item extends F3instance {
 
         $results = curl_exec($ch);
         curl_close($ch);
-        
+
         // We should have a response. Let's pull the docs out of it
         $cleaned_results = $this->get_docs_from_es_response(json_decode($results, True));
         // callback for jsonp requests
@@ -210,6 +210,7 @@ class Item extends F3instance {
             $dd = $dt->next_sibling('dd');
             $description = addslashes($dd->innertext);
             $link = $dd->first_child('a')->href;
+            $category = $page;
             
             // Start buliding the item
             $new_item = array();
@@ -227,109 +228,158 @@ class Item extends F3instance {
                  $new_item['category'] = $category;
             }
             
-            // This helps us get the recently awesome
-            $now = time();
-            $new_item['last_modified'] = $now;
-            $url = $this->get('ELASTICSEARCH_URL');
+            if(!empty($link)) {
             
-            // Send the item back to ES.
-            $jsoned_new_item = json_encode($new_item);
-            $ch = curl_init();
-            $method = "POST";
-    
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_new_item);
-    
-            $results = curl_exec($ch);
-            curl_close($ch);
-            
-            
-            // We should now have the item details stored. Let's index the Awesomed event (hollis_id and timestamp)
-            $awesomed_container = array();
-            $awesomed_container['link'] = $link;
-            $awesomed_container['checked_in'] = $now;
-        
-            // Send the event to ES.
-            $url = $this->get('ELASTICSEARCH_URL_CHECKED_IN');
-            $jsoned_awesomed_container = json_encode($awesomed_container);
-            $ch = curl_init();
-            $method = "POST";
-    
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_awesomed_container);
-    
-            $results = curl_exec($ch);
-            curl_close($ch);
+              $slug = trim(strtolower(stripslashes($link)));
+              $slug = str_replace("'", "", $slug);
+              $slug = str_replace(":", "", $slug);
+              $slug = str_replace("/", "", $slug);
+              $slug = preg_replace("/[^A-Za-z0-9]/", "", $slug);
+              $new_item['slug'] = $slug;
+              
+              // This helps us get the recently awesome
+              $now = time();
+              $new_item['last_modified'] = $now;
+              
+              $request = array();
+              $request['query']['query_string']['fields'] = array('slug');
+              $request['query']['query_string']['query'] = $slug;
+              $request['query']['query_string']['default_operator'] = 'AND';
+                  
+              $jsoned_request = json_encode($request);
+              
+              $url = $this->get('ELASTICSEARCH_URL') . '_search';
+              $ch = curl_init();
+              $method = "GET";
+      
+              curl_setopt($ch, CURLOPT_URL, $url);
+              curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+              curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+              curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_request);
+      
+              $results = curl_exec($ch);
+              curl_close($ch);
+              
+              $docs = json_decode($results, True);
+      
+      
+              $url = $this->get('ELASTICSEARCH_URL');
+      
+              // See if we already have it. If we do, just bump its awesomed (the counter field)
+              if ($docs['hits']['total'] > 0) {           
+                  $current_count = $docs['hits']['hits'][0]['_source']['clicks'];
+                  $new_item['clicks'] = $current_count;
+                  
+                  $url = $url . '/' . $docs['hits']['hits'][0]['_id'];           
+              } else {
+                  // It's not in ES. We need to add it.
+                 $new_item['clicks'] = 1;   
+              }
+           }
+           else {
+            $new_item['clicks'] = 1;
           }
-        }
-    }    
-
-    function create() {
-        // An item has been Awesomed (we received a barcode)
-        
-        // Start buliding the item
-        $new_item = array();
-        $incoming_name = $this->get('POST.name');
-        if(!empty($incoming_name)) {
-             $new_item['name'] = $incoming_name;
-        }
-        $incoming_link = $this->get('POST.link');
-        if(!empty($incoming_link)) {
-             $new_item['link'] = $incoming_link;
-        }
-        $incoming_description = $this->get('POST.description');
-        if(!empty($incoming_description)) {
-            $new_item['description'] = $incoming_description;
-        }
-        $incoming_category = $this->get('POST.category');
-        if(!empty($incoming_category)) {
-             $new_item['category'] = $incoming_category;
-        }
-        
-        // This helps us get the recently awesome
-        $now = time();
-        $new_item['last_modified'] = $now;
-        
-        $url = $this->get('ELASTICSEARCH_URL');
-        
-        // Send the item back to ES.
-        $jsoned_new_item = json_encode($new_item);
-        $ch = curl_init();
-        $method = "POST";
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_new_item);
-
-        $results = curl_exec($ch);
-        curl_close($ch);
-        
-        
-        // We should now have the item details stored. Let's index the Awesomed event (hollis_id and timestamp)
-        $awesomed_container = array();
-        $awesomed_container['link'] = $incoming_link;
-        $awesomed_container['checked_in'] = $now;
+            
+          // Send the item back to ES.
+          $jsoned_new_item = json_encode($new_item);
+          $ch = curl_init();
+          $method = "POST";
     
-        // Send the event to ES.
-        $url = $this->get('ELASTICSEARCH_URL_CHECKED_IN');
-        $jsoned_awesomed_container = json_encode($awesomed_container);
-        $ch = curl_init();
-        $method = "POST";
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_awesomed_container);
-
-        $results = curl_exec($ch);
-        curl_close($ch);
+          curl_setopt($ch, CURLOPT_URL, $url);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+          curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+          curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_new_item);
+    
+          $results = curl_exec($ch);
+          curl_close($ch);     
+            
+          // We should now have the item details stored. Let's index the Awesomed event (hollis_id and timestamp)
+          $awesomed_container = array();
+          $awesomed_container['slug'] = $slug;
+          $awesomed_container['checked_in'] = $now;
         
-    }
+          // Send the event to ES.
+          $url = $this->get('ELASTICSEARCH_URL_CHECKED_IN');
+          $jsoned_awesomed_container = json_encode($awesomed_container);
+          $ch = curl_init();
+          $method = "POST";
+    
+          curl_setopt($ch, CURLOPT_URL, $url);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+          curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+          curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_awesomed_container);
+    
+          $results = curl_exec($ch);
+          curl_close($ch);
+        }
+      }
+    }    
+    
+    function click() { 
+      $link = $this->get('POST.link');
+      
+      if(!empty($link)) {
+            
+              $slug = trim(strtolower(stripslashes($link)));
+              $slug = str_replace("'", "", $slug);
+              $slug = str_replace(":", "", $slug);
+              $slug = str_replace("/", "", $slug);
+              $slug = preg_replace("/[^A-Za-z0-9]/", "", $slug);
+              $new_item['slug'] = $slug;
+              
+              $request = array();
+              $request['query']['query_string']['fields'] = array('slug');
+              $request['query']['query_string']['query'] = $slug;
+              $request['query']['query_string']['default_operator'] = 'AND';
+                  
+              $jsoned_request = json_encode($request);
+              
+              $url = $this->get('ELASTICSEARCH_URL') . '_search';
+              $ch = curl_init();
+              $method = "GET";
+      
+              curl_setopt($ch, CURLOPT_URL, $url);
+              curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+              curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+              curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_request);
+      
+              $results = curl_exec($ch);
+              curl_close($ch);
+              
+              $docs = json_decode($results, True);
+      
+      
+              $url = $this->get('ELASTICSEARCH_URL');
+      
+              // See if we already have it. If we do, just bump its awesomed (the counter field)
+              if ($docs['hits']['total'] > 0) {       
+                  $current_count = $docs['hits']['hits'][0]['_source']['clicks'];
+                  $new_item = $docs['hits']['hits'][0]['_source'];
+                  $new_item['clicks'] = $current_count + 1;
+                  
+                  $url = $url . '/' . $docs['hits']['hits'][0]['_id'];           
+              } else {
+                  // It's not in ES. We need to add it.
+                 $new_item['clicks'] = 1;   
+              }
+           }
+           else {
+            $new_item['clicks'] = 1;
+          }
+
+      $jsoned_new_item = json_encode($new_item);
+      $ch = curl_init();
+      $method = "POST";
+    
+      curl_setopt($ch, CURLOPT_URL, $url);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_new_item);
+    
+      $results = curl_exec($ch);
+      curl_close($ch); 
+        
+    }   
     
     //////////////////////
     // Local heplers
@@ -376,9 +426,8 @@ class Item extends F3instance {
         return $deduped_docs;
     }
     
-    function get_docs_from_es_response($es_response) {
+    function get_docs_from_es_response($es_response) { 
         // Let's pull our docs out of Elasticsearch response here
-
         $docs = array();
         if (!empty($es_response)) {
             // Build the response to use our preferred vocab
@@ -395,6 +444,9 @@ class Item extends F3instance {
                 }
                 if (!empty($result['_source']['category'])) {
                     $doc['category'] = $result['_source']['category'];
+                }
+                if (!empty($result['_source']['clicks'])) {
+                    $doc['clicks'] = $result['_source']['clicks'];
                 }
                 if (!empty($result['_source']['checked_in'])) {
                     $doc['checked_in'] = $result['_source']['checked_in'];
