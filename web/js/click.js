@@ -1,6 +1,6 @@
 $(document).ready(function() {
   
-  $('dd a').on("click", function(event) {
+  $('dd a, li a').on("click", function(event) {
 		var link = $(this).attr('href');
 		var url = "api/item/click";
       
