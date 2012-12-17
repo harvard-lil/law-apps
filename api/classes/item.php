@@ -228,7 +228,7 @@ class Item extends F3instance {
                  $new_item['category'] = $category;
             }
             
-            if(!empty($link)) {
+            if(!empty($link) && !empty($name)) {
             
               $slug = trim(strtolower(stripslashes($link)));
               $slug = str_replace("'", "", $slug);
@@ -352,7 +352,7 @@ class Item extends F3instance {
               $url = $this->get('ELASTICSEARCH_URL');
       
               // See if we already have it. If we do, just bump its awesomed (the counter field)
-              if ($docs['hits']['total'] > 0) {       
+              if ($docs['hits']['total'] > 0 && !empty($docs['hits']['hits'][0]['_source']['name'])) {       
                   $current_count = $docs['hits']['hits'][0]['_source']['clicks'];
                   $new_item = $docs['hits']['hits'][0]['_source'];
                   $new_item['clicks'] = $current_count + 1;
