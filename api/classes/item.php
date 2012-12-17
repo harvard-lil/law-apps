@@ -357,28 +357,21 @@ class Item extends F3instance {
                   $new_item = $docs['hits']['hits'][0]['_source'];
                   $new_item['clicks'] = $current_count + 1;
                   
-                  $url = $url . '/' . $docs['hits']['hits'][0]['_id'];           
-              } else {
-                  // It's not in ES. We need to add it.
-                 $new_item['clicks'] = 1;   
-              }
-           }
-           else {
-            $new_item['clicks'] = 1;
-          }
-
-      $jsoned_new_item = json_encode($new_item);
-      $ch = curl_init();
-      $method = "POST";
+                  $url = $url . '/' . $docs['hits']['hits'][0]['_id'];    
+                  
+                  $jsoned_new_item = json_encode($new_item);
+                  $ch = curl_init();
+                  $method = "POST";
     
-      curl_setopt($ch, CURLOPT_URL, $url);
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
-      curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_new_item);
-    
-      $results = curl_exec($ch);
-      curl_close($ch); 
-        
+                  curl_setopt($ch, CURLOPT_URL, $url);
+                  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+                  curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_new_item);
+                
+                  $results = curl_exec($ch);
+                  curl_close($ch); 
+              } 
+           }  
     }   
     
     //////////////////////
