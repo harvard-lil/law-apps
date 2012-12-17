@@ -21,7 +21,7 @@ $(document).ready(function() {
 		return false;
 	});
 	
-	$('dd a, li a').on("click", function(event) {
+	$('dd a, li a, dt a').on("click", function(event) {
 		var link = $(this).attr('href');
 		var url = "http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/click";
       
