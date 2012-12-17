@@ -10,13 +10,14 @@ $(document).ready(function() {
 		var query = $("#query").val();
 		$.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/search?callback=?&limit=45&filter=_all:" + query, function(data) {
 		  //showResults(data);
-		  $('#search-results').html('<p>' + data.num_found + ' results</p><dl>');
+		  $('#search-results').html('<p>' + data.num_found + ' results</p>');
+		  var results_list = '';
 		  $.each(data.docs, function(key, value) { 
-        $('#search-results').append('<dt><a href="' + value.link + '">' + value.name + '</a></dt>');
-        $('#search-results').append('<dd>' + value.description + '</dd>').fadeIn();
-        $('#hide-results').fadeIn();
+        results_list += '<dt><a href="' + value.link + '" target="_blank">' + value.name + '</a></dt>';
+        results_list += '<dd>' + value.description + '</dd>';
       });
-      $('#search-results').append('</dl>');
+      $('#search-results').append('<dl>' + results_list + '</dl>').fadeIn();
+      $('#hide-results').fadeIn();
 		});
 		return false;
 	});
