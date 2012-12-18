@@ -2,26 +2,6 @@
 
 class Item extends F3instance {
 
-    function get_single() {
-        // Given an id, get the items details
-        // TODO: Some request and ES response validation
-
-        $url = $this->get('ELASTICSEARCH_URL') . $this->get('PARAMS.item_id');
-        $ch = curl_init();
-        $method = "GET";
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
-
-        $results = curl_exec($ch);
-        curl_close($ch);
-        
-        $this->set('results', json_decode($results, true));
-        $path_to_template = 'api/templates/direct_access_json.php';
-        echo $this->render($path_to_template);
-    }
-
     function search() {
         // Do some searching on things coming in from the filter URL param
 
@@ -106,96 +86,6 @@ class Item extends F3instance {
         //$this->set('results', $cleaned_results);
         $path_to_template = 'api/templates/search_json.php';
         echo $this->render($path_to_template);
-    }
-    
-    function recently_awesome() {
-        // Get the recently awesome (the items that were most recently
-        // dropped in the Awesome Box)
-        
-        $request = array();
-
-        // Match all items
-        $request['query'] = array("match_all" => new stdClass);
-        
-        // start parameter (elasticsearch calls this 'from')
-        $incoming_start = $this->get('GET.start');
-        if (!empty($incoming_start)) {
-            $request['from'] = $this->get('GET.start');
-        }
-        
-        // limit parameter (elasticsearch calls this 'size')
-        $request['size'] = 9;
-        
-        // limit parameter (elasticsearch calls this 'size')
-        $incoming_limit = $this->get('GET.limit');
-        if (!empty($incoming_limit)) {
-            $request['size'] = $this->get('GET.limit');
-        }
-        
-        // sort parameter
-        $request['sort'] = array('last_modified' => array('order' => 'desc'));
-        
-        // We now have our built request, let's jsonify it and send it to ES
-        $jsoned_request = json_encode($request);
-        
-        $url = $this->get('ELASTICSEARCH_URL') . '_search';
-        $ch = curl_init();
-        $method = "GET";
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_request);
-
-        $results = curl_exec($ch);
-        curl_close($ch);
-        
-        // We should have a response. Let's pull the docs out of it
-        $cleaned_results = $this->get_docs_from_es_response(json_decode($results, True));
-        
-        $this->set('results', $cleaned_results);
-        $path_to_template = 'api/templates/search_json.php';
-        echo $this->render($path_to_template);
-
-    }
-    
-    function most_awesome() {
-        // Get the most awesomed (the items that have been awesomed 
-        // the greatest number of times)
-        
-        $request = array();
-
-        // Match all items
-        $request['query'] = array("match_all" => new stdClass);
-        
-        // limit parameter (elasticsearch calls this 'size')
-        $request['size'] = 9;
-        
-        // sort parameter
-        $request['sort'] = array('awesomed' => array('order' => 'desc'));
-        
-        // We now have our built request, let's jsonify it and send it to ES
-        $jsoned_request = json_encode($request);
-        
-        $url = $this->get('ELASTICSEARCH_URL') . '_search';
-        $ch = curl_init();
-        $method = "GET";
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_request);
-
-        $results = curl_exec($ch);
-        curl_close($ch);
-        
-        // We should have a response. Let's pull the docs out of it
-        $cleaned_results = $this->get_docs_from_es_response(json_decode($results, True));
-        
-        $this->set('results', $cleaned_results);
-        $path_to_template = 'api/templates/search_json.php';
-        echo $this->render($path_to_template);
-
     }
     
     function scrape() {

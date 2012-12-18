@@ -1,9 +1,4 @@
 [globals]
-AWESOME_HOME = /absolute/file/system/path/to/the/awesome/directory
-ELASTICSEARCH_URL = http://localhost:9200/awesome/item/
-ELASTICSEARCH_URL_CHECKED_IN = http://localhost:9200/awesome/checked-in
-TWITTER_CONSUMER_KEY = topsecretinfogoeshere
-TWITTER_CONSUMER_SECRET = topsecretinfogoeshere
-TWITTER_OAUTH_TOKEN = topsecretinfogoeshere
-TWITTER_OAUTH_SECRET = topsecretinfogoeshere
-BITLY_KEY = topsecretinfogoeshere
+LAW_APPS_HOME = /absolute/file/system/path/to/the/law-apps/directory
+ELASTICSEARCH_URL = http://localhost:9200/law-apps/item/
+ELASTICSEARCH_URL_CHECKED_IN = http://localhost:9200/law-apps/checked-in
