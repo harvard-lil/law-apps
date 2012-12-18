@@ -97,7 +97,10 @@ class Item extends F3instance {
         }
         
         // We don't want dupes. Dedupe based on hollis_id
-        $deduped_docs = $this->dedupe_using_hollis_id($cleaned_results);
+        //$deduped_docs = $this->dedupe_using_hollis_id($cleaned_results);
+        
+        // Hopefully we're deduping on intake
+        $deduped_docs = $cleaned_results;
         
         $this->set('results', $deduped_docs);
         //$this->set('results', $cleaned_results);
