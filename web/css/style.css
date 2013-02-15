@@ -13,17 +13,45 @@ h1 {
 
 .result {
     clear:left;
-    min-height: 300px;
-    margin-top: 20px;
+    min-height: 320px;
+}
+
+.result h2 {
+    margin-bottom: 10px;
 }
 
 .result .desc {
+    margin-bottom: 30px;
 }
 
 .result .preview {
+    margin-bottom: 30px;
     float:left;
     margin-right: 15px;
     border: 2px solid #cbcbcb;
     min-height:250px;
     min-width:177px;
+}
+
+#search-awesome {
+    margin-top: 20px;
+}
+
+form input[type="text"] {
+height: 35px;
+width: 50%;
+margin: 0;
+padding: 0 0 0 10px;
+font-size:18px;
+border: 1px solid #CCCCCC;
+}
+
+form input[type="submit"] {
+height: 39px;
+width: 20%;
+margin: 0;
+padding: 0;
+
+background-color: #FFFFFF;
+border: 1px solid #CCCCCC;
 }

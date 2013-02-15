@@ -2,3 +2,6 @@
 LAW_APPS_HOME = /absolute/file/system/path/to/the/law-apps/directory
 ELASTICSEARCH_URL = http://localhost:9200/law-apps/item/
 ELASTICSEARCH_URL_CHECKED_IN = http://localhost:9200/law-apps/checked-in
+
+WKHTMLTOPDF_FS_PATH = /opt/wkhtmltopdf/bin/wkhtmltopdf
+URL_ITEM_API = http://localhost/law-apps/api/item/search
