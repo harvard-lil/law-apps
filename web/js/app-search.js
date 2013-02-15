@@ -3,7 +3,7 @@ var $j = jQuery.noConflict();
 $j(document).ready(function() {
   $j('#search-awesome').submit(function() {
 		var query = $j("#query").val();
-		$j.get("api/item/search?limit=45&filter=_all:" + query, function(data) {
+		$j.get("api/item/search?callback=?&limit=45&filter=_all:" + query, function(data) {
 		  showResults(data);
 		});
 		return false;
