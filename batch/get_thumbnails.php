@@ -22,12 +22,12 @@ function thumbnail_from_url($slug, $url){
     
     global $master_config;
     
-    //print "slug is $slug and url is $url\n";
+    print "slug is $slug and url is $url\n";
 
     // Some online resources have the same slug. If we've already created a thumb for that slug, don't do anything.
     if (!file_exists($master_config['LAW_APPS_HOME'] . '/web/images/db-thumbs/' . $slug . '_thumb.jpg')) {
         exec($master_config['WKHTMLTOPDF_FS_PATH'] . ' --quiet -B 0 -L 0 -R 0 -T 0 ' . $url . ' ' . $master_config['LAW_APPS_HOME'] . '/web/images/db-thumbs/' . $slug . '.pdf');
-        exec('convert -quiet ' . $master_config['LAW_APPS_HOME'] . '/web/images/db-thumbs/' . $slug . '.pdf ' . $master_config['LAW_APPS_HOME'] . '/web/images/db-thumbs/' . $slug . '.jpg');
+        exec('convert -quiet ' . $master_config['LAW_APPS_HOME'] . '/web/images/db-thumbs/' . $slug . '.pdf[0] ' . $master_config['LAW_APPS_HOME'] . '/web/images/db-thumbs/' . $slug . '.jpg');
         exec('convert -quiet ' . $master_config['LAW_APPS_HOME'] . '/web/images/db-thumbs/' . $slug . '.jpg -resize 250x250 ' . $master_config['LAW_APPS_HOME'] . '/web/images/db-thumbs/' . $slug . '_thumb.jpg');
     
         if (!file_exists($master_config['LAW_APPS_HOME'] . '/web/images/db-thumbs/' . $slug . '_thumb.jpg')) {
@@ -61,6 +61,8 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 $a = curl_exec($ch);
 
 $response = json_decode($a);
+
+//thumbnail_from_url('httpnrsharvardeduurn3huleresourcearchamer', 'http://nrs.harvard.edu/urn-3:hul.eresource:archamer');
 
 // We should have URLs to the online resource and their slugs. Get thumbnails and put them on disk.
 foreach ($response->docs as $doc) {
