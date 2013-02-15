@@ -21,26 +21,22 @@ h1 {
     padding: 30px;
     width: 580px;
 }
-#barcode {
-	border: solid 1px #bee620;
-	font-size:24px;
-	width:375px;
-	padding:10px;
-	margin-top:25px;
-}
-.added-title {
-  margin-left:8px;
+
+.result {
+    clear:left;
+    min-height: 300px;
+    margin-top: 20px;
 }
 
-.bar {
-  width:10%;
+.result .desc {
 }
-#search-results p {
-	float:right;
-}
-#search-results img {
-	float:left;
-	margin-right: 5px;
+
+.result .preview {
+    float:left;
+    margin-right: 15px;
+    border: 2px solid #cbcbcb;
+    min-height:250px;
+    min-width:177px;
 }
 </style>
 
@@ -53,17 +49,19 @@ h1 {
 <div id="innerlay">
 	<h1>Database Search</h1>
 	<form id="search-awesome">
-    <input type="text" id="query" />
-    <input class="btn btn-large" type="submit" value="GO" id="submit" />
-  </form>
-<div id="search-results"></div>
-</div>
-		<script id="search-template" type="text/x-handlebars-template">
-		  <p class="num-found">{{num_found}} results</p>
-        {{#docs}}
-          <h2><a href="{{link}}">{{name}}</a></h2>
-          <p><img src="images/db-thumbs/{{slug}}_thumb.jpg">{{{description}}}</p>
-        {{/docs}}
-		</script>
+            <input type="text" id="query" />
+            <input class="btn btn-large" type="submit" value="GO" id="submit" />
+        </form>
+        <div id="search-results"></div>
+</div> <!-- interlay -->
+<script id="search-template" type="text/x-handlebars-template">
+    <p class="num-found">{{num_found}} results</p>
+    {{#docs}}
+        <div class="result">
+            <h2><a href="{{link}}">{{name}}</a></h2>
+            <span class="preview"><img src="images/db-thumbs/{{slug}}_thumb.jpg"></span><span class="desc">{{{description}}}</span>
+        </div>
+    {{/docs}}
+</script>
 </body>
 </html>
