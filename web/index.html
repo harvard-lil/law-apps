@@ -35,6 +35,13 @@ h1 {
 .bar {
   width:10%;
 }
+#search-results p {
+	float:right;
+}
+#search-results img {
+	float:left;
+	margin-right: 5px;
+}
 </style>
 
 <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
@@ -55,7 +62,7 @@ h1 {
 		  <p class="num-found">{{num_found}} results</p>
         {{#docs}}
           <h2><a href="{{link}}">{{name}}</a></h2>
-          <p>{{{description}}}</p>
+          <p><img src="images/db-thumbs/{{slug}}_thumb.jpg">{{{description}}}</p>
         {{/docs}}
 		</script>
 </body>

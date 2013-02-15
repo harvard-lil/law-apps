@@ -325,6 +325,10 @@ class Item extends F3instance {
                 if (!empty($result['_source']['link'])) {
                     $doc['link'] = $result['_source']['link'];
                 }
+                if (!empty($result['_source']['slug'])) {
+                    $doc['slug'] = $result['_source']['slug'];
+                }
+                
                 if (!empty($result['_source']['description'])) {
                     $doc['description'] = stripslashes($result['_source']['description']);
                 }
