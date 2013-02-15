@@ -1,2 +1,4 @@
 etc/master.cfg
 .htaccess
+log/*.log
+batch/http*
