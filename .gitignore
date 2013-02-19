@@ -1,2 +1,4 @@
-etc/master.cfg
+etc/master.ini
 .htaccess
+log/*.log
+web/images/db-thumbs/http*

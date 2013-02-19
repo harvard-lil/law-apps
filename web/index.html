@@ -1,69 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-<title>Database Search</title> 
+	<title>Database Search</title> 
+	<link href="images/favicon.ico" rel="shortcut icon">
 
-<link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
-<link href="images/favicon.ico" rel="shortcut icon">
-<style>
+	<link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
+	<link rel="stylesheet" href="css/style.css" type="text/css" />
 
-h1 {
-  color: #11cbf7;
-}
-
-#innerlay {
-    background: none repeat scroll 0 0 #FFFFFF;
-    border: 3px solid #bee620;
-    border-radius: 3px 3px 3px 3px;
-    margin: 80px auto 0;
-    padding: 30px;
-    width: 580px;
-}
-#barcode {
-	border: solid 1px #bee620;
-	font-size:24px;
-	width:375px;
-	padding:10px;
-	margin-top:25px;
-}
-.added-title {
-  margin-left:8px;
-}
-
-.bar {
-  width:10%;
-}
-</style>
-
-<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
-<script src="js/handlebars.js"></script>
-<script type="text/javascript" src="js/scan.js">
-</script>
+	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+	<script src="js/handlebars.js"></script>
+	<script type="text/javascript" src="js/app-search.js">
+	</script>
 </head>
 <body>
-<div class="container">
-<div class="row">
-  <div class="span5">
-    <h1>Database Search</h1>
-    <form id="search-awesome">
-      <input type="text" id="query" />
-      <input class="btn btn-large" type="submit" value="GO" id="submit" />
-    </form>
-  </div>
-</div>
 
-<div id="search-results" class="row"></div>
-</div>
-		<script id="search-template" type="text/x-handlebars-template">
-		<div class="span6">
-		  <p class="num-found">{{num_found}} results</p>
-        {{#docs}}
-          <h3><a href="{{link}}">{{name}}</a></h3>
-          <p>{{{description}}}</p>
-        {{/docs}}
-      </div>
-		</script>
+	<div id="innerlay">
+		<h1>Database Search</h1>
+		<form id="search-awesome">
+			<input type="text" id="query" />
+			<input class="btn btn-large" type="submit" value="Find Resources" id="submit" />
+		</form>
+		<div id="search-results"></div>
+	</div> <!-- interlay -->
+	<script id="search-template" type="text/x-handlebars-template">
+	<p class="num-found">{{num_found}} results</p>
+	{{#docs}}
+	<div class="result">
+		<h2><a href="{{link}}">{{name}}</a></h2>
+		<span class="preview"><a href="{{link}}"><img src="images/db-thumbs/{{slug}}_thumb.jpg"></a></span><span class="desc">{{{description}}}</span>
+	</div>
+	{{/docs}}
+	</script>
 </body>
 </html>
