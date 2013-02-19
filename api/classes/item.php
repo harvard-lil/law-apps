@@ -208,6 +208,167 @@ class Item extends F3instance {
       }
     }    
     
+    function populate() {
+    
+        $url = $this->get('ELASTICSEARCH_URL') . '_search';
+        $ch = curl_init();
+        $method = "GET";
+        
+        $request['size'] = 550;
+        
+        $jsoned_request = json_encode($request);
+      
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_request);
+      
+        $results = curl_exec($ch);
+        curl_close($ch);     
+        $docs = json_decode($results, True);
+        
+        // Store snapshot to compare to new data
+        $snapshot = array();
+        foreach($docs['hits']['hits'] as $entry){
+          array_push($snapshot, $entry['_source']['slug']);
+        }
+
+        include('simple_html_dom.php');
+        $scraped = array();
+        
+        $pages = array('legal','academic','historical','newspapers','portals','business','census','economic','government','international-relations','justice','labor');
+
+        foreach($pages as $page) {
+        
+          $html = file_get_html("http://law.harvard.edu/library/research/databases/$page.html");
+    
+          // find all link
+          foreach($html->find('dt') as $dt) { 
+            $name = addslashes($dt->plaintext);
+            $dd = $dt->next_sibling('dd');
+            $description = addslashes($dd->innertext);
+            $link = $dd->first_child('a')->href;
+            $category = $page;
+            
+            // Start buliding the item
+            $new_item = array();
+  
+            if(!empty($name)) {
+                 $new_item['name'] = $name;
+            }
+            if(!empty($link)) {
+                 $new_item['link'] = $link;
+            }
+            if(!empty($description)) {
+                $new_item['description'] = $description;
+            }
+            if(!empty($category)) {
+                 $new_item['category'] = $category;
+            }
+            
+            if(!empty($link) && !empty($name)) {
+            
+              $slug = trim(strtolower(stripslashes($link)));
+              $slug = str_replace("'", "", $slug);
+              $slug = str_replace(":", "", $slug);
+              $slug = str_replace("/", "", $slug);
+              $slug = preg_replace("/[^A-Za-z0-9]/", "", $slug);
+              $new_item['slug'] = $slug;
+              array_push($scraped, $slug);
+              
+              // This helps us get the recently awesome
+              $now = time();
+              $new_item['last_modified'] = $now;
+              
+              $request = array();
+              $request['query']['query_string']['fields'] = array('slug');
+              $request['query']['query_string']['query'] = $slug;
+              $request['query']['query_string']['default_operator'] = 'AND';
+                  
+              $jsoned_request = json_encode($request);
+              
+              $url = $this->get('ELASTICSEARCH_URL') . '_search';
+              $ch = curl_init();
+              $method = "GET";
+      
+              curl_setopt($ch, CURLOPT_URL, $url);
+              curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+              curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+              curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_request);
+      
+              $results = curl_exec($ch);
+              curl_close($ch);
+              
+              $docs = json_decode($results, True);
+      
+      
+              $url = $this->get('ELASTICSEARCH_URL');
+      
+              // See if we already have it. If we do, just bump its awesomed (the counter field)
+              if ($docs['hits']['total'] > 0) {           
+                  $current_count = $docs['hits']['hits'][0]['_source']['clicks'];
+                  $new_item['clicks'] = $current_count;
+                  
+                  $url = $url . '/' . $docs['hits']['hits'][0]['_id'];           
+              } else {
+                  // It's not in ES. We need to add it.
+                 $new_item['clicks'] = 1;   
+              }
+           }
+           else {
+            $new_item['clicks'] = 1;
+          }
+            
+          // Send the item back to ES.
+          $jsoned_new_item = json_encode($new_item);
+          $ch = curl_init();
+          $method = "POST";
+    
+          curl_setopt($ch, CURLOPT_URL, $url);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+          curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+          curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_new_item);
+    
+          $results = curl_exec($ch);
+          curl_close($ch);     
+            
+          // We should now have the item details stored. Let's index the Awesomed event (hollis_id and timestamp)
+          $awesomed_container = array();
+          $awesomed_container['slug'] = $slug;
+          $awesomed_container['checked_in'] = $now;
+        
+          // Send the event to ES.
+          $url = $this->get('ELASTICSEARCH_URL_CHECKED_IN');
+          $jsoned_awesomed_container = json_encode($awesomed_container);
+          $ch = curl_init();
+          $method = "POST";
+    
+          curl_setopt($ch, CURLOPT_URL, $url);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+          curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+          curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_awesomed_container);
+    
+          $results = curl_exec($ch);
+          curl_close($ch);    
+        }
+      }
+      
+      $result = array_diff($snapshot, $scraped);
+
+      foreach($result as $key => $value){
+        echo "<p>$value</p>";
+        $url = $this->get('ELASTICSEARCH_URL') . "_query?q=slug:$value";
+        $ch = curl_init();
+        $method = "DELETE";
+    
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+        $results = curl_exec($ch);
+        curl_close($ch);    
+      }
+    }    
+    
     function click() { 
       $link = $this->get('POST.link');
       

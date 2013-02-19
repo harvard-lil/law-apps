@@ -43,20 +43,27 @@ h1 {
 </script>
 </head>
 <body>
-<div id="innerlay">
-	<h1>Database Search</h1>
-	<form id="search-awesome">
-    <input type="text" id="query" />
-    <input class="btn btn-large" type="submit" value="GO" id="submit" />
-  </form>
-<div id="search-results"></div>
+<div class="container">
+<div class="row">
+  <div class="span5">
+    <h1>Database Search</h1>
+    <form id="search-awesome">
+      <input type="text" id="query" />
+      <input class="btn btn-large" type="submit" value="GO" id="submit" />
+    </form>
+  </div>
+</div>
+
+<div id="search-results" class="row"></div>
 </div>
 		<script id="search-template" type="text/x-handlebars-template">
+		<div class="span6">
 		  <p class="num-found">{{num_found}} results</p>
         {{#docs}}
-          <h2><a href="{{link}}">{{name}}</a></h2>
+          <h3><a href="{{link}}">{{name}}</a></h3>
           <p>{{{description}}}</p>
         {{/docs}}
+      </div>
 		</script>
 </body>
 </html>
