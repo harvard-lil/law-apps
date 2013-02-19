@@ -248,7 +248,7 @@ class Item extends F3instance {
             $dd = $dt->next_sibling('dd');
             $description = addslashes($dd->innertext);
             $link = $dd->first_child('a')->href;
-            $category = $page;
+            $category = array($page);
             
             // Start buliding the item
             $new_item = array();
@@ -308,6 +308,9 @@ class Item extends F3instance {
               if ($docs['hits']['total'] > 0) {           
                   $current_count = $docs['hits']['hits'][0]['_source']['clicks'];
                   $new_item['clicks'] = $current_count;
+                  $existing_categories = $docs['hits']['hits'][0]['_source']['category'];
+                  $combined_categories = array_merge($existing_categories, $new_item['category']);
+                  $new_item['category'] =  $combined_categories;
                   
                   $url = $url . '/' . $docs['hits']['hits'][0]['_id'];           
               } else {
