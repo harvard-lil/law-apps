@@ -22,16 +22,46 @@
 			<input type="text" id="query" />
 			<input class="btn btn-large" type="submit" value="Find Resources" id="submit" />
 		</form>
+		<div id="filters"></div> <!-- filters -->
+		<div id="controls">
+		</div> <!-- controls -->
 		<div id="search-results"></div>
 	</div> <!-- interlay -->
 	<script id="search-template" type="text/x-handlebars-template">
-	<p class="num-found">{{num_found}} results</p>
 	{{#docs}}
 	<div class="result">
 		<h2><a href="{{link}}">{{name}}</a></h2>
 		<span class="preview"><a href="{{link}}"><img src="images/db-thumbs/{{slug}}_thumb.jpg"></a></span><span class="desc">{{{description}}}</span>
 	</div>
 	{{/docs}}
+	</script>
+	
+	<script id="filters-template" type="text/x-handlebars-template">
+		<ul>
+		{{#terms}}
+			<li id="{{term}}" class="filter control-action">{{term}} ({{count}})</li>
+		{{/terms}}
+		</ul>
+	</script>
+	
+	<script id="controls-template" type="text/x-handlebars-template">
+		{{#if clear}}
+			<p id="clear" class="control-action">Clear filters</p>
+		{{/if}}
+		
+		<p>Showing {{start}} to {{end}} of {{num_found}} results 
+
+		{{#if prev}}
+			<span id="prev" class="control-action">Previous</span>
+		{{/if}}
+		
+		{{#if next}}
+			<span id="next" class="control-action">Next</span>
+		{{/if}}
+		</p>
+		
+
+		
 	</script>
 </body>
 </html>
