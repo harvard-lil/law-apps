@@ -32,15 +32,17 @@ class Item extends F3instance {
         If we don't have filters, we want to build a request like this:
         
         $reqeust =  '{
-            "query" : {
-                "match_all" : {  }
+            "from": 0,
+            "size": 25,
+            "query": {
+                "match_all": {}
             },
-            "size" : 0,
-            "facets" : {
-                "tag" : {
-                    "terms" : {
-                        "field" : "hollis_id",
-                        "size" : 100
+            "facets": {
+                "category": {
+                    "terms": {
+                        "term": {
+                            "field": "category"
+                        }
                     }
                 }
             }
@@ -50,6 +52,11 @@ class Item extends F3instance {
 
         // This is the object we build to send off to elasticsearch
         $request = array();
+
+        // Set some defaults for our controls
+        $request['from'] = 0;
+        $request['size'] = 25;
+        
 
         // If have filters, our request to elasticserach looks substantially different (than one without filters)
         // Build that request here
@@ -69,7 +76,7 @@ class Item extends F3instance {
             $request['facets']['category']['terms'] = array('field' => 'category');
             $request['facets']['category']['facet_filter'] = $filter_structure;
         } else {
-            $reqyest['query']['match_all'] = new stdClass;
+            $request['query']['match_all'] = new stdClass;
             $request['facets']['category']['terms'] = array("term" => array("field" => "category"));
         }
 
@@ -94,7 +101,7 @@ class Item extends F3instance {
         
         // We now have our built request, let's jsonify it and send it to ES
         $jsoned_request = json_encode($request);
-//        print $jsoned_request;
+        //print $jsoned_request;
         $url = $this->get('ELASTICSEARCH_URL') . '_search';
         $ch = curl_init();
         $method = "GET";

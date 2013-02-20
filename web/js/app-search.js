@@ -13,6 +13,7 @@ $(document).ready(function() {
     $('#query').focus();
 
     $('#search-awesome').submit(function() {
+        params.start = 0;
         getResults();
         return false;
     });
