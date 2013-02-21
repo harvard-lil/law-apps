@@ -7,23 +7,46 @@ class Item extends F3instance {
 
         /* Start building the query object. If we have filters, we do something like:
         $reqeust =  '{
-            "query" : {
-                "filtered" : {
-                    "query" : {"match_all" : {}},
-                    "filter" : {
-                        "and" : [
+            "from": 0,
+            "size": 25,
+            "query": {
+                "filtered": {
+                    "query": {
+                        "match_all": {}
+                    },
+                    "filter": {
+                        "and": [
                             {
-                                "term" : {
-                                    "category" : "legal"
+                                "term": {
+                                    "category": "legal"
                                 }
                             },
-                                                {
-                                "term" : {
-                                    "category" : "academic"
+                            {
+                                "term": {
+                                    "_all": "computer"
                                 }
                             }
                         ]
-                    } 
+                    }
+                }
+            },
+            "facets": {
+                "category": {
+                    "terms": {
+                        "field": "category"
+                    },
+                    "facet_filter": [
+                        {
+                            "term": {
+                                "category": "legal"
+                            }
+                        },
+                        {
+                            "term": {
+                                "_all": "computer"
+                            }
+                        }
+                    ]
                 }
             }
         }'
@@ -68,7 +91,15 @@ class Item extends F3instance {
             foreach ($filters as $filter) {
                 $key_and_val = explode(":", $filter);
                 if (count($key_and_val) == 2 and !empty($key_and_val[0]) and !empty($key_and_val[1])) {
-                    array_push($filter_structure, array("term" => array($key_and_val[0] => $key_and_val[1])));
+                    
+                    // Add each term as a filter.
+                    // This seems so kludgy. What's the best way to do this in ES?
+                    $terms = explode(" ", $key_and_val[1]);
+                    foreach ($terms as $term){
+                        if (!empty($term)) {                        
+                            array_push($filter_structure, array("term" => array($key_and_val[0] => $term)));
+                        }
+                    }
                 }  
             }
             
