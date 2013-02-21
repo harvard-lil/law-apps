@@ -13,10 +13,9 @@ var filters = [];
 var api_response = null;
 
 $(document).ready(function() {
-  $('head').append('<link rel="stylesheet" href="http://hlsl10.law.harvard.edu/dev/annie/law-apps/css/cms-app-store.css" type="text/css" />');
-  $('#search-template').hide();
-  $('#search-apps').css('margin-bottom', '15px');
-
+  $('head').append('<link rel="stylesheet" href="http://hlsl10.law.harvard.edu/dev/annie/law-apps/css/cms-app-store.css" type="text/css" />').delay(600).each(function() {
+    $('#search-apps').fadeIn();
+  });
   $('#search-apps').submit(function() {
 		var query = $("#query").val();
 		/*$.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/search?callback=?&limit=45&filter[]=_all:" + query, function(data) {
@@ -78,20 +77,21 @@ function getResults() {
 }
 
 function showResults(){ 
-  $('#search-results').html('<p>' + api_response.num_found + ' results</p>');
-		  var results_list = '';
-		  $.each(api_response.docs, function(key, value) { 
-        results_list += '<div class="result"><h2><a href="' + value.link + '" target="_blank">' + value.name + '</a></h2>';
-        results_list += '<a href="' + value.link + '"><span class="preview"><img src="http://hlsl10.law.harvard.edu/dev/annie/law-apps/images/db-thumbs/' + value.slug +'_thumb.jpg" alt=""></span></a>';
-        results_list += '<span class="desc">' + value.description + '</span></div>';
-      });
-      $('#search-results').append(results_list);
+	var results_list = '';
+	$.each(api_response.docs, function(key, value) { 
+    results_list += '<div class="result"><h2><a href="' + value.link + '" target="_blank">' + value.name + '</a></h2>';
+    results_list += '<a href="' + value.link + '"><span class="preview"><img src="http://hlsl10.law.harvard.edu/dev/annie/law-apps/images/db-thumbs/' + value.slug +'_thumb.jpg" alt=""></span></a>';
+    results_list += '<span class="desc">' + value.description + '</span></div>';
+  });
+  $('#search-results').html(results_list);
 }
 
 function showFacets(){ 
   var filters_list = '';
+  var column = 1;
   $.each(api_response.facets.category.terms, function(key, value) { 
-    filters_list += '<li id="' + value.term + '" class="filter control-action">' + value.term + ' (' + value.count + ')</li>';
+    filters_list += '<li id="' + value.term + '" class="filter control-action column' + column + '">' + value.term + ' (' + value.count + ')</li>';
+    column++;
 	});
 	$('#filters').html('<ul>' + filters_list + '</ul>');
 }
@@ -134,7 +134,7 @@ function showControls(){
 		}
 		
 		controls_html += '</p>';
-		$('#controls').html(controls_html);
+		$('.controls').html(controls_html);
     
     //var source = $("#controls-template").html();
     //var template = Handlebars.compile(source);

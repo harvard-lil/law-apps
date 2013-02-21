@@ -16,7 +16,9 @@ h1 {
 
 .result {
     clear:left;
-    min-height: 320px;
+    /*min-height: 320px;*/
+    min-height:270px;
+    margin-bottom: 15px;
 }
 
 .result h2 {
@@ -31,16 +33,19 @@ h1 {
 }
 
 .result .preview {
-    margin-bottom: 30px;
     float:left;
-    margin-right: 15px;
+    margin-right: 20px;
     border: 2px solid #cbcbcb;
-    min-height:250px;
+    /*min-height:250px;*/
+    height:200px;
+    overflow:hidden;
     min-width:177px;
+    background: url('../images/placeholder.png') no-repeat;
 }
 
-#search-awesome {
+#search-apps {
     margin-top: 20px;
+    margin-bottom:15px;
 }
 
 form input[type="text"] {
@@ -49,33 +54,62 @@ width: 50%;
 margin: 0;
 padding: 0 0 0 10px;
 font-size:18px;
+line-height:18px;
 border: 1px solid #CCCCCC;
+vertical-align:middle;
 }
 
 form input[type="submit"] {
-height: 39px;
+height: 37px;
 width: 20%;
 margin: 0;
 padding: 0;
-
+font-size:18px;
 background-color: #FFFFFF;
 border: 1px solid #CCCCCC;
+vertical-align:middle;
+}
+
+#filters {  
+  height:55px;
 }
 
 #filters ul {
-    list-style-type: none;
+  list-style-type: none;
+  float:left;
+  margin:0;
 }
 
 #filters ul li {
   background:none;
+  padding:0;
+  margin:0;
+  line-height: 1.5em;
+}
+
+#filters ul li.column1, #filters ul li.column2, #filters ul li.column3 { margin-left: 0px; }
+#filters ul li.column4, #filters ul li.column5, #filters ul li.column6 { margin-left: 150px; }
+#filters ul li.column7, #filters ul li.column8, #filters ul li.column9 { margin-left: 300px; }
+#filters ul li.column10, #filters ul li.column11, #filters ul li.column12 { margin-left: 450px; }
+
+#filters ul li.column4,
+  #filters ul li.column7, #filters ul li.column10
+  {
+    margin-top: -4.5em;
+  }
+  
+.controls {
+  clear:both;
+  margin-top:15px;
+  float:left;
 }
 
 .control-action {
     cursor: hand; cursor: pointer;
-    color: #11cbf7;
+    color: #E22B00;
 }
 
 .control-action:hover {
-  color: #bee620;
+  color: #E22B00;
   text-decoration: underline;
 }
