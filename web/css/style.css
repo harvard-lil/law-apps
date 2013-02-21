@@ -55,3 +55,17 @@ padding: 0;
 background-color: #FFFFFF;
 border: 1px solid #CCCCCC;
 }
+
+ul {
+    list-style-type: none;
+}
+
+.control-action {
+    cursor: hand; cursor: pointer;
+    color: #11cbf7;
+}
+
+.control-action:hover {
+  color: #bee620;
+  text-decoration: underline;
+}

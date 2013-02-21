@@ -5,35 +5,81 @@ class Item extends F3instance {
     function search() {
         // Do some searching on things coming in from the filter URL param
 
-        /* Start building the query object. We hope to end up with something like:
-        $reqeust = '{
-            "from" : 0,
-            "size": 10,
+        /* Start building the query object. If we have filters, we do something like:
+        $reqeust =  '{
             "query" : {
-                "terms" : {
-                    "creator" : [ "card" ]
-                }
-            },
-            sort: {
-                title: {
-                    order: "desc"
+                "filtered" : {
+                    "query" : {"match_all" : {}},
+                    "filter" : {
+                        "and" : [
+                            {
+                                "term" : {
+                                    "category" : "legal"
+                                }
+                            },
+                                                {
+                                "term" : {
+                                    "category" : "academic"
+                                }
+                            }
+                        ]
+                    } 
                 }
             }
-        }';
+        }'
+        
+        
+        If we don't have filters, we want to build a request like this:
+        
+        $reqeust =  '{
+            "from": 0,
+            "size": 25,
+            "query": {
+                "match_all": {}
+            },
+            "facets": {
+                "category": {
+                    "terms": {
+                        "term": {
+                            "field": "category"
+                        }
+                    }
+                }
+            }
+        }'
+        
         */
+
+        // This is the object we build to send off to elasticsearch
         $request = array();
 
-        // Users can query by specifying an url param like &filter=title:ender
-        // TODO: We should allow for multiple filters.
-        $key_and_val = explode(":", $this->get('GET.filter'));
-        if (count($key_and_val) == 2 and !empty($key_and_val[0]) and !empty($key_and_val[1])) {
-            $request['query']['query_string']['fields'] = array($key_and_val[0]);
-            $request['query']['query_string']['query'] = '*' . $key_and_val[1] . '*';
-            $request['query']['query_string']['default_operator'] = 'AND';
+        // Set some defaults for our controls
+        $request['from'] = 0;
+        $request['size'] = 25;
+        
+
+        // If have filters, our request to elasticserach looks substantially different (than one without filters)
+        // Build that request here
+        $filters = $this->get('GET.filter');
+        $filter_structure = array();
+
+        if (!empty($filters)) {
+            $request['query']['filtered']['query'] = array("match_all" => new stdClass);
+            foreach ($filters as $filter) {
+                $key_and_val = explode(":", $filter);
+                if (count($key_and_val) == 2 and !empty($key_and_val[0]) and !empty($key_and_val[1])) {
+                    array_push($filter_structure, array("term" => array($key_and_val[0] => $key_and_val[1])));
+                }  
+            }
+            
+            $request['query']['filtered']['filter']['and'] = $filter_structure;
+            $request['facets']['category']['terms'] = array('field' => 'category');
+            $request['facets']['category']['facet_filter'] = $filter_structure;
         } else {
-            $request['query'] = array("match_all" => new stdClass);
+            $request['query']['match_all'] = new stdClass;
+            $request['facets']['category']['terms'] = array("term" => array("field" => "category"));
         }
-        //$request['query']['query_string']['query'] = 'American FactFinder';
+
         // start parameter (elasticsearch calls this 'from')
         $incoming_start = $this->get('GET.start');
         if (!empty($incoming_start)) {
@@ -55,7 +101,7 @@ class Item extends F3instance {
         
         // We now have our built request, let's jsonify it and send it to ES
         $jsoned_request = json_encode($request);
-        
+        //print $jsoned_request;
         $url = $this->get('ELASTICSEARCH_URL') . '_search';
         $ch = curl_init();
         $method = "GET";
@@ -68,22 +114,28 @@ class Item extends F3instance {
         $results = curl_exec($ch);
         curl_close($ch);
 
+        $decoded_results = json_decode($results, True);
+
         // We should have a response. Let's pull the docs out of it
-        $cleaned_results = $this->get_docs_from_es_response(json_decode($results, True));
+        $cleaned_results = $this->get_docs_from_es_response($decoded_results);
+        
         // callback for jsonp requests
         $incoming_callback = $this->get('GET.callback');
         if (!empty($incoming_callback)) {
             $this->set('callback', $this->get('GET.callback'));
         }
         
-        // We don't want dupes. Dedupe based on hollis_id
-        //$deduped_docs = $this->dedupe_using_hollis_id($cleaned_results);
+        $facets = $this->get_facets_from_es_response($decoded_results);
+
+        // Set our facets in our view        
+        if (!empty($facets)) {
+            $this->set('facets', $facets);
+        }
         
-        // Hopefully we're deduping on intake
-        $deduped_docs = $cleaned_results;
-        
-        $this->set('results', $deduped_docs);
-        //$this->set('results', $cleaned_results);
+        $this->set('results', $cleaned_results);
+
+        $this->set('num_found', $decoded_results['hits']['total']);
+
         $path_to_template = 'api/templates/search_json.php';
         echo $this->render($path_to_template);
     }
@@ -248,7 +300,7 @@ class Item extends F3instance {
             $dd = $dt->next_sibling('dd');
             $description = addslashes($dd->innertext);
             $link = $dd->first_child('a')->href;
-            $category = $page;
+            $category = array($page);
             
             // Start buliding the item
             $new_item = array();
@@ -308,6 +360,9 @@ class Item extends F3instance {
               if ($docs['hits']['total'] > 0) {           
                   $current_count = $docs['hits']['hits'][0]['_source']['clicks'];
                   $new_item['clicks'] = $current_count;
+                  $existing_categories = $docs['hits']['hits'][0]['_source']['category'];
+                  $combined_categories = array_merge($existing_categories, $new_item['category']);
+                  $new_item['category'] =  $combined_categories;
                   
                   $url = $url . '/' . $docs['hits']['hits'][0]['_id'];           
               } else {
@@ -513,6 +568,16 @@ class Item extends F3instance {
         }
         
         return $docs;
+    }
+    
+    function get_facets_from_es_response($es_response) { 
+        // Let's pull our docs out of Elasticsearch response here
+        $facets = array();
+        if (!empty($es_response) && !empty($es_response['facets'])) {
+            $facets = $es_response['facets'];
+        }
+        
+        return $facets;
     }
 }
 ?>
