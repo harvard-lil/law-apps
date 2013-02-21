@@ -80,7 +80,7 @@ function showFacets(){
 
 function showControls(){
     var data = {num_found: api_response.num_found};
-    data.start = params.start;
+    data.start = params.start + 1;
     
     if (params.start + params.limit < api_response.num_found) {
         data.end = params.start + params.limit;
