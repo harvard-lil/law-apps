@@ -21,10 +21,13 @@ h1 {
 
 .result h2 {
     margin-bottom: 10px;
+    font-size:1.8em;
 }
 
 .result .desc {
     margin-bottom: 30px;
+    font-size:13px;
+    line-height:18px;
 }
 
 .result .preview {

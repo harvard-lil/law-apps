@@ -1,23 +1,26 @@
 // script for the CMS app store page
 // http://law.harvard.edu/library/research/databases/apps.html
 
+//var $ = jQuery.noConflict();
+
 $(document).ready(function() {
-  $('head').append('<link rel="stylesheet" href="http://hlsl10.law.harvard.edu/dev/annie/law-apps/cms-app-store.css" type="text/css" />');
+  $('head').append('<link rel="stylesheet" href="http://hlsl10.law.harvard.edu/dev/annie/law-apps/css/cms-app-store.css" type="text/css" />');
   $('#search-template').hide();
   $('#search-apps').css('margin-bottom', '15px');
 
   $('#search-apps').submit(function() {
 		var query = $("#query").val();
 		$.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/search?callback=?&limit=45&filter=_all:" + query, function(data) {
-		  showResults(data);
-		  /*$('#search-results').html('<p>' + data.num_found + ' results</p>');
+		  //showResults(data);
+		  $('#search-results').html('<p>' + data.num_found + ' results</p>');
 		  var results_list = '';
 		  $.each(data.docs, function(key, value) { 
-        results_list += '<dt><a href="' + value.link + '" target="_blank">' + value.name + '</a></dt>';
-        results_list += '<dd>' + value.description + '</dd>';
+        results_list += '<div class="result"><h2><a href="' + value.link + '" target="_blank">' + value.name + '</a></h2>';
+        results_list += '<a href="' + value.link + '"><span class="preview"><img src="http://hlsl10.law.harvard.edu/dev/annie/law-apps/images/db-thumbs/' + value.slug +'_thumb.jpg" alt=""></span></a>';
+        results_list += '<span class="desc">' + value.description + '</span></div>';
       });
-      $('#search-results').append('<dl>' + results_list + '</dl>').fadeIn();
-      $('#hide-results').fadeIn();*/
+      $('#search-results').append(results_list);
+      //$('#search-results').append('<dl>' + results_list + '</dl>').fadeIn();
 		});
 		return false;
 	});
