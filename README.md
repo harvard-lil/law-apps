@@ -12,6 +12,34 @@ Download it and install it:
 
     http://www.elasticsearch.org/
 
+Once installed, be sure to start elasticsearch:
+
+    /etc/init.d/elasticsearch start
+
+You'll also want to create a basic mapping for our item index:
+
+	curl -XPUT 'http://localhost:9200/law-apps-matt/' -d '{
+	    "settings" : {
+	        "index" : {
+	            "number_of_shards" : 1,
+	            "number_of_replicas" : 2
+	        }
+	    },
+		"mappings" : {
+		    "item" : {
+		        "properties" : {
+		            "category" : {
+		                "type" : "multi_field",
+		                "fields" : {
+		                    "category" : {"type" : "string", "index" : "analyzed"},
+		                    "category_raw" : {"type" : "string", "index" : "not_analyzed"}
+		                }
+		            }
+		        }
+		    }
+		}
+	}'
+
 ### PHP and the web server
 
 Law Apps Box is written in PHP. PHP 5.3 or later is recommended.
