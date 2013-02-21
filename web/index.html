@@ -49,7 +49,7 @@
 			<p id="clear" class="control-action">Clear filters</p>
 		{{/if}}
 		
-		<p>Showing {{start}} to {{end}} of {{num_found}} results 
+		<p>{{#if num_found}}Showing {{start}} to {{end}} of {{/if}}{{num_found}} results 
 
 		{{#if prev}}
 			<span id="prev" class="control-action">Previous</span>
