@@ -1,4 +1,5 @@
 etc/master.ini
 .htaccess
 log/*.log
-web/images/db-thumbs/http*
+web/images/db-thumbs/*
+!web/images/db-thumbs/blank*
