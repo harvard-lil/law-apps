@@ -11,22 +11,22 @@ var params = {
 var filters = [];
 
 var api_response = null;
+var query = "http";
 
 $(document).ready(function() {
   $('head').append('<link rel="stylesheet" href="http://hlsl10.law.harvard.edu/dev/annie/law-apps/css/cms-app-store.css" type="text/css" />').delay(600).each(function() {
     $('#search-apps').fadeIn();
   });
+  
+  getResults();
+		
   $('#search-apps').submit(function() {
-		var query = $("#query").val();
-		/*$.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/search?callback=?&limit=45&filter[]=_all:" + query, function(data) {
-		  showResults(data);
-		});*/
+    query = $("#query").val();
 		params.start = 0;
     getResults();
 		return false;
 	});
 
-	
 	$(".filter").live("click", function(event){
     filters.push('category:' + $(this).attr("id"));
     params.start = 0;
@@ -56,7 +56,6 @@ $(document).ready(function() {
 });
 
 function getResults() {
-    var query = $("#query").val();
 
     var api_url = "http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/search?callback=?&sort=clicks desc&limit=" + params.limit + "&start=" + params.start;
 
@@ -98,6 +97,7 @@ function showFacets(){
 
 function showControls(){
   var controls_html = '';
+  $('.controls').html(controls_html);
     var data = {num_found: api_response.num_found};
     data.start = params.start + 1;
     
@@ -134,7 +134,11 @@ function showControls(){
 		}
 		
 		controls_html += '</p>';
-		$('.controls').html(controls_html);
+		if(api_response.num_found > 0)
+		  $('.controls').html(controls_html);
+		else 
+		  $('.controls:first').html('<p>No results for "' + query + '"</p>');
+		  
     
     //var source = $("#controls-template").html();
     //var template = Handlebars.compile(source);

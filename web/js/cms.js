@@ -1,3 +1,6 @@
+//  This is currently used to power the search box on the database page
+//  http://law.harvard.edu/library/research/databases/index.html
+
 $(document).ready(function() {
   $('#search-results, #hide-results').hide();
   $('#hide-results').css('float', 'right').css('cursor', 'pointer');
@@ -8,7 +11,7 @@ $(document).ready(function() {
   
   $('#search-awesome').submit(function() {
 		var query = $("#query").val();
-		$.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/search?callback=?&limit=45&filter=_all:" + query, function(data) {
+		$.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/search?callback=?&limit=45&filter[]=_all:" + query, function(data) {
 		  //showResults(data);
 		  $('#search-results').html('<p>' + data.num_found + ' results</p>');
 		  var results_list = '';
