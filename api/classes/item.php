@@ -18,12 +18,7 @@ class Item extends F3instance {
                         "and": [
                             {
                                 "term": {
-                                    "category_raw": "legal"
-                                }
-                            },
-                            {
-                                "term": {
-                                    "_all": "computer"
+                                    "category": "legal"
                                 }
                             }
                         ]
@@ -33,17 +28,13 @@ class Item extends F3instance {
             "facets": {
                 "category_raw": {
                     "terms": {
-                        "field": "category_raw"
+                        "field": "category_raw",
+                        "size": 20
                     },
                     "facet_filter": [
                         {
                             "term": {
-                                "category_raw": "legal"
-                            }
-                        },
-                        {
-                            "term": {
-                                "_all": "computer"
+                                "category": "legal"
                             }
                         }
                     ]
@@ -63,9 +54,8 @@ class Item extends F3instance {
             "facets": {
                 "category_raw": {
                     "terms": {
-                        "term": {
-                            "field": "category_raw"
-                        }
+                        "field": "category_raw",
+                        "size": 20
                     }
                 }
             }
@@ -104,11 +94,13 @@ class Item extends F3instance {
             }
             
             $request['query']['filtered']['filter']['and'] = $filter_structure;
-            $request['facets']['category_raw']['terms'] = array('field' => 'category_raw');
+            $request['facets']['category_raw']['terms']['field'] = 'category_raw';
+            $request['facets']['category_raw']['terms']["size"] = 20;
             $request['facets']['category_raw']['facet_filter'] = $filter_structure;
         } else {
             $request['query']['match_all'] = new stdClass;
-            $request['facets']['category_raw']['terms'] = array("term" => array("field" => "category_raw"));
+            $request['facets']['category_raw']['terms']['field'] = "category_raw";
+            $request['facets']['category_raw']['terms']["size"] = 20;
         }
 
         // start parameter (elasticsearch calls this 'from')
