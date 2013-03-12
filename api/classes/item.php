@@ -87,7 +87,7 @@ class Item extends F3instance {
                     $terms = explode(" ", $key_and_val[1]);
                     foreach ($terms as $term){
                         if (!empty($term)) {                        
-                            array_push($filter_structure, array("term" => array($key_and_val[0] => $term)));
+                            array_push($filter_structure, array("prefix" => array($key_and_val[0] => $term)));
                         }
                     }
                 }  
