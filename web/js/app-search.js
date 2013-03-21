@@ -20,7 +20,7 @@ $(document).ready(function() {
 });
 
 $(".filter").live("click", function(event){
-    filters.push('category:' + $(this).attr("id"));
+    filters.push('category_raw:' + $(this).attr("id"));
     params.start = 0;
     getResults();
 });
@@ -72,10 +72,10 @@ function showResults(){
     $('#search-results').html(template(api_response));
 }
 
-function showFacets(){ 
+function showFacets(){
     var source = $("#filters-template").html();
     var template = Handlebars.compile(source);
-    $('#filters').html(template(api_response.facets.category));
+    $('#filters').html(template(api_response.facets['category_raw']));
 }
 
 function showControls(){
