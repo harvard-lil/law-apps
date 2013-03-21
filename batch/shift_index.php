@@ -15,7 +15,7 @@ function backup_es_type($es_type_path, $backup_file_path) {
     //  ES scan functionality
     
     // Read 500 docs in
-    $curl = curl_init($es_type_path . "_search?size=500"); 
+    $curl = curl_init($es_type_path . "_search?size=500");
     curl_setopt($curl, CURLOPT_FAILONERROR, true); 
     curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true); 
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true); 
@@ -66,7 +66,50 @@ function reindex_es_type($es_type_path, $backup_file_path) {
 
 //backup_es_type($es_type_path, $backup_file_path);
 //delete_es_type($es_type_path);
-//create new index. (using curl on the command line)
+
+
+// create new index. (using curl on the command line)
+// probably looks something like:
+/*curl -XPUT 'http://hlsl7.law.harvard.edu:9200/law-apps-matt/' -d '{
+   "settings" : {
+       "index" : {
+           "number_of_shards" : 1,
+           "number_of_replicas" : 2
+       }
+   },
+   "mappings" : {
+       "item" : {
+           "properties" : {
+               "category" : {
+                   "type" : "multi_field",
+                   "fields" : {
+                       "category" : {"type" : "string", "index" : "analyzed"},
+                       "category_raw" : {"type" : "string", "index" : "not_analyzed"}
+                   }
+               }
+           }
+       }
+   }
+}'
+
+
+$ curl -XPUT 'http://hlsl7.law.harvard.edu:9200/law-apps-matt/item/_mapping' -d '
+{
+    "item" : {
+           "properties" : {
+               "category" : {
+                   "type" : "multi_field",
+                   "fields" : {
+                       "category" : {"type" : "string", "index" : "analyzed"},
+                       "category_raw" : {"type" : "string", "index" : "not_analyzed"}
+                   }
+               }
+           }
+       }
+}
+'*/
+
+
 //reindex_es_type($es_type_path, $backup_file_path);
 
 ?>
