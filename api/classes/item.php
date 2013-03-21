@@ -174,7 +174,8 @@ class Item extends F3instance {
     function scrape() {
         include('simple_html_dom.php');
         
-        $pages = array('legal','academic','historical','newspapers','portals','business','census','economic','government','international-relations','justice','labor');
+        //$pages = array('legal','academic','historical','newspapers','portals','business','census','economic','government','international-relations','justice','labor');
+        $pages = $this->get('CATEGORIES');
 
         foreach($pages as $page) {
         
@@ -319,7 +320,8 @@ class Item extends F3instance {
         include('simple_html_dom.php');
         $scraped = array();
         
-        $pages = array('legal','academic','historical','newspapers','portals','business','census','economic','government','international-relations','justice','labor');
+        //$pages = array('legal','academic','historical','newspapers','portals','business','census','economic','government','international-relations','justice','labor');
+        $pages = $this->get('CATEGORIES');
 
         foreach($pages as $page) {
         
@@ -454,6 +456,16 @@ class Item extends F3instance {
         curl_close($ch);    
       }
     }    
+    
+    function categories() {
+      $pages = $this->get('CATEGORIES');
+      header('Content-type: application/json');
+      // callback for jsonp requests
+      $callback = $this->get('GET.callback');
+
+      if ($callback) echo $callback . '(' . json_encode($pages) . ')';
+      else echo json_encode($pages);
+    }
     
     function click() { 
       $link = $this->get('POST.link');
