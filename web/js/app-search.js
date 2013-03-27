@@ -11,6 +11,12 @@ $(document).ready(function() {
 
     // On load, focus on the search box  
     $('#query').focus();
+    var params = getParams();
+    query = params.q;
+    if(query) {
+      $("#query").val(query);
+      getResults();
+    }
 
     $('#search-awesome').submit(function() {
         params.start = 0;
@@ -18,14 +24,13 @@ $(document).ready(function() {
         return false;
     });
     
-    
-      showHome();
-      showCategories();
+    showCategories();
 
 });
 
 $(".filter").live("click", function(event){
-    filters.push('category_raw:' + $(this).attr("id"));
+    var category = $(this).attr("id").toLowerCase();
+    filters.push('category_raw:' + category);
     params.start = 0;
     getResults();
 });
@@ -50,10 +55,17 @@ $("#next").live("click", function(event){
     getResults();
 });
 
+$(".result").live("click", function(event){
+  //var link = $(this).find('a').attr('href');
+  var link = $(this).data('href');
+	window.open(link);
+	event.preventDefault();
+});
+
 function getResults() {
     var query = $("#query").val();
 
-    var api_url = "api/item/search?callback=?&limit=" + params.limit + "&start=" + params.start;
+    var api_url = "api/item/search?callback=?&sort=clicks desc&limit=" + params.limit + "&start=" + params.start;
 
     $.each(filters, function(index, value) {
         api_url = api_url + "&filter[]=" + value;
@@ -70,42 +82,6 @@ function getResults() {
         showControls();
     });
 }
-
-function showHome(){ 
-  $.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/search?callback=?&limit=6&start=0&sort=clicks desc&filter[]=_all:http", function(json_data) {
-    var source = $("#browse-template").html();
-    var template = Handlebars.compile(source);
-    $('#popular').html(template(json_data));
-  });
-  
-  $.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/search?callback=?&limit=6&start=0&sort=last_modified desc&filter[]=_all:http", function(json_data) {
-    var source = $("#browse-template").html();
-    var template = Handlebars.compile(source);
-    $('#new').html(template(json_data));
-    $('.vertscrollbox').cycle({
-      fx: 'scrollVert',
-      timeout: 0,
-      containerResize: 0,
-      easing: 'easeOutQuint',
-      speed: 500
-    }).hoverIntent({
-      timeout: 500,
-      over: function() {
-      $(this).cycle('prev');
-      },
-      out: function() {
-      $(this).cycle('next');
-      }
-    });
-  });
-}
-
-Handlebars.registerHelper('displayDescription', function(description) {
-  var display = description.replace(/<a.*href="(.*?)".*>(.*?)<\/a>/gi, "$2");
-  display = display.substr(0, 175);
-  display = display.substr(0, Math.min(display.length, display.lastIndexOf(" ")));
-  return display;
-});
 
 function showCategories(){   
   $.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/categories?callback=?", function(categories) {
@@ -124,6 +100,11 @@ function showResults(){
     var template = Handlebars.compile(source);
     $('#search-results').html(template(api_response));
 }
+
+Handlebars.registerHelper('displayDescription', function(description) {
+  var display = description.replace(/<a.*href="(.*?)".*>(.*?)<\/a>/gi, "$2");
+  return display;
+});
 
 function showFacets(){
     var source = $("#filters-template").html();
@@ -155,5 +136,40 @@ function showControls(){
     
     var source = $("#controls-template").html();
     var template = Handlebars.compile(source);
-    $('#controls').html(template(data));
+    $('.controls').html(template(data));
 }
+
+function getParams() {
+	    var vars = [], hash;
+
+        var hashes = window.location.href.slice(inArray('?', window.location.href) + 1).split('&');
+
+	    // create array for each key
+	    for(var i = 0; i < hashes.length; i++) {
+	    	hash = hashes[i].split('=');
+	    	vars[hash[0]] = [];
+	    }
+	    
+	    // populate newly created entries with values 
+	    for(var i = 0; i < hashes.length; i++) {
+	        hash = hashes[i].split('=');
+	        if (hash[1]) {
+	        	vars[hash[0]].push(decodeURIComponent(hash[1].replace(/\+/g, '%20')));
+	        }
+	    }
+
+	    return vars;
+}
+
+function inArray( elem, array ) {
+        if ( array.indexOf ) {
+            return array.indexOf( elem );
+        }
+
+        for ( var i = 0, length = array.length; i < length; i++ ) {
+            if ( array[ i ] === elem ) {
+                return i;
+            }
+        }
+        return -1;
+    }

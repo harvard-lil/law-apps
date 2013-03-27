@@ -905,6 +905,8 @@ optgroup::-moz-focus-inner {
 .result {
     clear:left;
     min-height:270px;
+    cursor:pointer;
+    background-color:#f1f1f1;
 }
 
 .result h2 {
@@ -964,7 +966,7 @@ optgroup::-moz-focus-inner {
   border-bottom:3px solid #A51C30;
 }
 
-.browse-result:hover {
+.result:hover, .browse-result:hover {
   background-color: #e0e0e0;
   -webkit-transition: background-color 200ms linear;
   -moz-transition: background-color 200ms linear;
