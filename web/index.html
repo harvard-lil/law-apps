@@ -1,64 +1,140 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <head>
+    <meta charset="utf-8">
+    <title>Law Library App Store</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-	<title>Database Search</title> 
-	<link href="images/favicon.ico" rel="shortcut icon">
+    <!-- Le styles -->
+    <!-- this is a way broken down bootstrap, mostly grid, nav and responsive -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!-- Le fav and touch icons -->
+    <!--<script type="text/javascript">
+ 		 var _gaq = _gaq || [];
+  		_gaq.push(['_setAccount', ' UA-29277171-1']);
+  		_gaq.push(['_trackPageview']);
 
-	<link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
-	<link rel="stylesheet" href="css/style.css" type="text/css" />
+  		(function() {
+    		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  		})();
+	</script>-->
+  </head>
 
-	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
-	<script src="js/handlebars.js"></script>
-	<script type="text/javascript" src="js/app-search.js">
-	</script>
-</head>
-<body>
+  <body>
+	<div class="container">
+  	<div class="row">
+    	<div class="span3">
+    		<h2>Law Library Apps</h2>
+    		<form id="search-awesome">
+			    <input type="text" id="query" placeholder="Search" />
+			    <!--<input class="btn btn-large" type="submit" value="Go" id="submit" />-->
+		    </form>
+ 				<ul id="categories">
+          <li class="active"><a href="index.html">Home</a></li>
+          <li>Popular</li>
+          <hr>
+        </ul>		
+		  </div><!--end span2-->	
+        <div class="span9">
 
-	<div id="innerlay">
-		<h1>Database Search</h1>
-		<form id="search-awesome">
-			<input type="text" id="query" />
-			<input class="btn btn-large" type="submit" value="Find Resources" id="submit" />
-		</form>
-		<div id="filters"></div> <!-- filters -->
-		<div id="controls">
-		</div> <!-- controls -->
-		<div id="search-results"></div>
-	</div> <!-- interlay -->
-	<script id="search-template" type="text/x-handlebars-template">
-	{{#docs}}
-	<div class="result">
-		<h2><a href="{{link}}">{{name}}</a></h2>
-		<span class="preview"><a href="{{link}}"><img src="images/db-thumbs/{{slug}}_thumb.jpg"></a></span><span class="desc">{{{description}}}</span>
-	</div>
-	{{/docs}}
-	</script>
+
+		<div id="popular"></div>
+		<div id="new"></div>
+
+        	
+
+      		
+      	</div><!--end span9 block, which sides beside the nav span2 block-->
+    	
+      
+    	<footer>
+      		<div class="row">
+      			<div class="span12">
+      				<hr>
+        			<p>Copyright &copy; 2013 The President and Fellows of Harvard College<br><a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a></p>
+      			</div>
+      		</div><!--row-->
+      	</footer>
+    </div><!--container-->
+    
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery-1.7.1.min.js"></script>
+    <script src="js/handlebars.js"></script>
+    <script src="js/app-search.js"></script>
+    <script src="js/jquery.cycle.all.js"></script>
+    <script src="js/jquery.easing.1.3.js"></script>
+    <script src="js/jquery.hoverIntent.min.js"></script>
+    <script id="search-template" type="text/x-handlebars-template">
+      {{#docs}}
+      <div class="result">
+        <h2><a href="{{link}}">{{name}}</a></h2>
+        <span class="preview"><a href="{{link}}"><img src="images/db-thumbs/{{slug}}_thumb.jpg"></a></span><span class="desc">{{{description}}}</span><span class="result-category">{{{category}}}</span><span class="result-clicks">{{{clicks}}}</span>
+      </div>
+      {{/docs}}
+    </script>
+    
+    <script id="browse-template" type="text/x-handlebars-template">
+      {{#docs}}
+        	<div class="vertscrollbox browse-result link-out category-{{{category}}}" data-href="{{{link}}}">
+        	  <div class="slide imageslide">
+        	    <div class="slidewrapper">
+        	      <div class="browse-preview">
+        	        <img src="http://hlsl10.law.harvard.edu/dev/annie/law-apps/images/db-thumbs/{{{slug}}}_thumb.jpg" alt="">
+        	      </div>
+        	      <div class="browse-name">{{{name}}}</div>
+        	      <div class="browse-clicks">{{{clicks}}} clicks</div>
+        	    </div>
+        	  </div>
+        	  <div class="slide textslide">
+        	    <div class="slidewrapper">
+        	      <div class="browse-name">{{{name}}}</div>
+        	      <p>{{{displayDescription description}}}</p>
+        	    </div>
+        	  </div>
+        	</div>
+      {{/docs}}
+    </script>
+    
+    <script id="categories-template" type="text/x-handlebars-template">
+      {{#categories}}
+        <li id="{{displayCategory this}}" class="filter control-action">{{displayCategory this}}</li>
+      {{/categories}}
+    </script>
 	
-	<script id="filters-template" type="text/x-handlebars-template">
-		<ul>
-		{{#terms}}
-			<li id="{{term}}" class="filter control-action">{{term}} ({{count}})</li>
-		{{/terms}}
-		</ul>
-	</script>
-	
-	<script id="controls-template" type="text/x-handlebars-template">
-		{{#if clear}}
-			<p id="clear" class="control-action">Clear filters</p>
-		{{/if}}
-		
-		<p>{{#if num_found}}Showing {{start}} to {{end}} of {{/if}}{{num_found}} results 
-
-		{{#if prev}}
-			<span id="prev" class="control-action">Previous</span>
-		{{/if}}
-		
-		{{#if next}}
-			<span id="next" class="control-action">Next</span>
-		{{/if}}
-		</p>
-	</script>
-</body>
+    <script id="filters-template" type="text/x-handlebars-template">
+      <ul>
+      {{#terms}}
+        <li id="{{term}}" class="filter control-action">{{term}} ({{count}})</li>
+      {{/terms}}
+      </ul>
+    </script>
+    
+    <script id="controls-template" type="text/x-handlebars-template">
+      {{#if clear}}
+        <p id="clear" class="control-action">Clear filters</p>
+      {{/if}}
+      
+      <p>{{#if num_found}}Showing {{start}} to {{end}} of {{/if}}{{num_found}} results 
+  
+      {{#if prev}}
+        <span id="prev" class="control-action">Previous</span>
+      {{/if}}
+      
+      {{#if next}}
+        <span id="next" class="control-action">Next</span>
+      {{/if}}
+      </p>
+    </script>
+  </body>
 </html>

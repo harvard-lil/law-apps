@@ -6,7 +6,7 @@
  * These can be helpful when adjusting a type's mapping (schema)
  ******************/
 
-$es_type_path = 'hlsl7.law.harvard.edu:9200/law-apps-matt/item/';
+$es_type_path = 'hlsl10.law.harvard.edu:9200/law-apps/item/';
 $backup_file_path = 'es_backup.json';
 
 function backup_es_type($es_type_path, $backup_file_path) {
@@ -93,7 +93,7 @@ function reindex_es_type($es_type_path, $backup_file_path) {
 }'
 
 
-$ curl -XPUT 'http://hlsl7.law.harvard.edu:9200/law-apps-matt/item/_mapping' -d '
+$ curl -XPUT 'http://hlsl10.law.harvard.edu:9200/law-apps/item/_mapping' -d '
 {
     "item" : {
            "properties" : {

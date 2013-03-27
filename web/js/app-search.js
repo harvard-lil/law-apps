@@ -17,6 +17,11 @@ $(document).ready(function() {
         getResults();
         return false;
     });
+    
+    
+      showHome();
+      showCategories();
+
 });
 
 $(".filter").live("click", function(event){
@@ -65,6 +70,54 @@ function getResults() {
         showControls();
     });
 }
+
+function showHome(){ 
+  $.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/search?callback=?&limit=6&start=0&sort=clicks desc&filter[]=_all:http", function(json_data) {
+    var source = $("#browse-template").html();
+    var template = Handlebars.compile(source);
+    $('#popular').html(template(json_data));
+  });
+  
+  $.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/search?callback=?&limit=6&start=0&sort=last_modified desc&filter[]=_all:http", function(json_data) {
+    var source = $("#browse-template").html();
+    var template = Handlebars.compile(source);
+    $('#new').html(template(json_data));
+    $('.vertscrollbox').cycle({
+      fx: 'scrollVert',
+      timeout: 0,
+      containerResize: 0,
+      easing: 'easeOutQuint',
+      speed: 500
+    }).hoverIntent({
+      timeout: 500,
+      over: function() {
+      $(this).cycle('prev');
+      },
+      out: function() {
+      $(this).cycle('next');
+      }
+    });
+  });
+}
+
+Handlebars.registerHelper('displayDescription', function(description) {
+  var display = description.replace(/<a.*href="(.*?)".*>(.*?)<\/a>/gi, "$2");
+  display = display.substr(0, 175);
+  display = display.substr(0, Math.min(display.length, display.lastIndexOf(" ")));
+  return display;
+});
+
+function showCategories(){   
+  $.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/categories?callback=?", function(categories) {
+    var source = $("#categories-template").html();
+    var template = Handlebars.compile(source);
+    $('#categories').append(template(categories));
+  });
+}
+
+Handlebars.registerHelper('displayCategory', function(category) {
+  return category.charAt(0).toUpperCase() + category.slice(1);
+});
 
 function showResults(){ 
     var source = $("#search-template").html();

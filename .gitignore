@@ -3,3 +3,4 @@ etc/master.ini
 log/*.log
 web/images/db-thumbs/*
 !web/images/db-thumbs/blank*
+batch/es_backup.json

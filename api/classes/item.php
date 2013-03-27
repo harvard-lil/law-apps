@@ -451,12 +451,13 @@ class Item extends F3instance {
     
     function categories() {
       $pages = $this->get('CATEGORIES');
+      $categories['categories'] = $pages;
       header('Content-type: application/json');
       // callback for jsonp requests
       $callback = $this->get('GET.callback');
 
-      if ($callback) echo $callback . '(' . json_encode($pages) . ')';
-      else echo json_encode($pages);
+      if ($callback) echo $callback . '(' . json_encode($categories) . ')';
+      else echo json_encode($categories);
     }
     
     function click() { 
