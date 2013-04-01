@@ -1,6 +1,7 @@
 //  This is currently used to power the search box on the database page
 //  http://law.harvard.edu/library/research/databases/index.html
-
+var app_data = '';
+var guide_data = '';
 $(document).ready(function() {
   $('#search-results, #hide-results').hide();
   $('#hide-results').css('float', 'right').css('cursor', 'pointer');
@@ -11,16 +12,29 @@ $(document).ready(function() {
   
   $('#search-awesome').submit(function() {
 		var query = $("#query").val();
-		$.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/search?callback=?&limit=45&filter[]=_all:" + query, function(data) {
-		  //showResults(data);
-		  $('#search-results').html('<p>' + data.num_found + ' results</p>');
-		  var results_list = '';
-		  $.each(data.docs, function(key, value) { 
-        results_list += '<dt><a href="' + value.link + '" target="_blank">' + value.name + '</a></dt>';
-        results_list += '<dd>' + value.description + '</dd>';
-      });
-      $('#search-results').append('<dl>' + results_list + '</dl>').fadeIn();
-      $('#hide-results').fadeIn();
+		$.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/search?callback=?&limit=45&filter[]=type:app&filter[]=_all:" + query, function(data) {
+		  app_data = data;
+		  $.getJSON("http://hlsl10.law.harvard.edu/dev/annie/law-apps/api/item/search?callback=?&limit=45&filter[]=type:guide&filter[]=_all:" + query, function(data) {
+		    guide_data = data;
+		    $('#search-results').html('<p>' + app_data.num_found + ' database(s), ' + guide_data.num_found + ' guide(s)</p>');
+		    var results_list = '';
+		    if(app_data.num_found > 0) {
+		      results_list = '<h3>Databases</h3>';
+		    }
+		    $.each(app_data.docs, function(key, value) { 
+          results_list += '<dt><a href="' + value.link + '" target="_blank">' + value.name + '</a></dt>';
+          results_list += '<dd>' + value.description + '</dd>';
+        });
+        if(guide_data.num_found > 0) {
+		      results_list += '<h3>Guides</h3>';
+		    }
+        $.each(guide_data.docs, function(key, value) { 
+          results_list += '<dt><a href="' + value.link + '" target="_blank">' + value.name + '</a></dt>';
+          results_list += '<dd>' + value.description + '</dd>';
+        });
+        $('#search-results').append('<dl>' + results_list + '</dl>').fadeIn();
+        $('#hide-results').fadeIn();
+		  });
 		});
 		return false;
 	});

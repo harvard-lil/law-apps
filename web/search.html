@@ -34,12 +34,12 @@
   	<div class="row">
     	<div class="span3">
     		<h2>Law Library Apps</h2>
-    		<form id="search-awesome">
-			    <input type="text" id="query" placeholder="Search" />
+    		<form id="search-awesome" action="http://hlsl10.law.harvard.edu/dev/annie/law-apps/search" method="get">
+			    <input type="text" id="query" name="q" placeholder="Search" />
 			    <!--<input class="btn btn-large" type="submit" value="Go" id="submit" />-->
 		    </form>
  				<ul id="categories">
-          <li class="active"><a href="/">Home</a></li>
+          <li class="active"><a href="http://hlsl10.law.harvard.edu/dev/annie/law-apps/">Home</a></li>
           <li>Popular</li>
           <hr>
         </ul>		
@@ -79,7 +79,13 @@
       {{#docs}}
       <div class="result" data-href="{{{link}}}">
         <h2><a href="{{link}}">{{name}}</a></h2>
-        <span class="preview"><a href="{{link}}"><img src="images/db-thumbs/{{slug}}_thumb.jpg"></a></span><span class="desc">{{{displayDescription description}}}</span><span class="result-category">{{{displayCategory category}}}</span><span class="result-clicks">{{{clicks}}} clicks</span>
+        <span class="preview"><a href="{{link}}"><img src="images/db-thumbs/{{slug}}_thumb.jpg"></a></span><span class="desc">{{{displayDescription description}}}</span>
+        <span class="result-categories">
+        {{#category}}
+        <span class="result-category">{{{displayCategory this}}}</span>
+        {{/category}}
+        </span>
+        <span class="result-clicks">{{{clicks}}} clicks</span>
       </div>
       {{/docs}}
     </script>

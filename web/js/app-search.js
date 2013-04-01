@@ -18,22 +18,24 @@ $(document).ready(function() {
       getResults();
     }
 
-    $('#search-awesome').submit(function() {
+    /*$('#search-awesome').submit(function() {
         params.start = 0;
         getResults();
         return false;
-    });
+    });*/
     
     showCategories();
 
 });
 
-$(".filter").live("click", function(event){
+/*$(".filter").live("click", function(event){
     var category = $(this).attr("id").toLowerCase();
     filters.push('category_raw:' + category);
     params.start = 0;
     getResults();
-});
+});*/
+
+
 
 $("#clear").live("click", function(event){
     filters.length = 0;

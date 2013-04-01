@@ -919,7 +919,7 @@ optgroup::-moz-focus-inner {
     font-size:13px;
     line-height:18px;
     display:block;
-    height:142px;
+    height:140px;
     overflow:hidden;
 }
 
@@ -935,10 +935,15 @@ optgroup::-moz-focus-inner {
 }
 
 .result-category {
-  display:block;
-  margin:5px 0 0 0;
-  padding:0;
   color:#111;
+}
+
+.result-category:after {
+    content: ','
+}
+
+.result-category:last-child:after {
+    content:''
 }
 
 .result-clicks {

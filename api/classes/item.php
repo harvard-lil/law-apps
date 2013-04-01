@@ -309,7 +309,7 @@ class Item extends F3instance {
           array_push($snapshot, $entry['_source']['slug']);
         }
 
-        include('simple_html_dom.php');
+        include_once('simple_html_dom.php');
         $scraped = array();
         
         //$pages = array('legal','academic','historical','newspapers','portals','business','census','economic','government','international-relations','justice','labor');
@@ -342,6 +342,8 @@ class Item extends F3instance {
             if(!empty($category)) {
                  $new_item['category'] = $category;
             }
+            
+            $new_item['type'] = 'app';
             
             if(!empty($link) && !empty($name)) {
             
@@ -387,9 +389,9 @@ class Item extends F3instance {
                   $new_item['clicks'] = $current_count;
                   $existing_categories = $docs['hits']['hits'][0]['_source']['category'];
                   $combined_categories = array_merge($existing_categories, $new_item['category']);
-                  $new_item['category'] =  $combined_categories;
+                  $new_item['category'] =  array_unique($combined_categories);
                   
-                  $url = $url . '/' . $docs['hits']['hits'][0]['_id'];           
+                  $url = $url . '/' . $docs['hits']['hits'][0]['_id'];   
               } else {
                   // It's not in ES. We need to add it.
                  $new_item['clicks'] = 1;   
@@ -429,7 +431,8 @@ class Item extends F3instance {
           curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_awesomed_container);
     
           $results = curl_exec($ch);
-          curl_close($ch);    
+          curl_close($ch);  
+          sleep(5);
         }
       }
       
@@ -447,7 +450,128 @@ class Item extends F3instance {
         $results = curl_exec($ch);
         curl_close($ch);    
       }
-    }    
+      
+      $this->populateGuides();
+    }  
+    
+    function populateGuides() 
+    {
+
+        include_once('simple_html_dom.php');
+        
+        $html = file_get_html("http://law.harvard.edu/library/research/topics/index.html");
+    
+        // find all link
+        foreach($html->find('li') as $li) { 
+          $name = addslashes($li->plaintext);
+          if (strpos($name,'(Research Guide)') !== false) {
+
+            $link = $li->first_child('a')->href;
+            $name = $li->first_child('a')->plaintext;
+            $category = 'guide';
+            $description = "$name (Research Guide)";
+            
+            // Start buliding the item
+            $new_item = array();
+  
+            if(!empty($name)) {
+                 $new_item['name'] = $name;
+            }
+            if(!empty($link)) {
+                 $new_item['link'] = $link;
+            }
+            if(!empty($description)) {
+                $new_item['description'] = "$name (Research Guide)";
+            }
+            if(!empty($category)) {
+                 $new_item['category'] = $category;
+            }
+            $new_item['type'] = "guide";
+            
+            if(!empty($link) && !empty($name)) {
+            
+              $slug = trim(strtolower(stripslashes($link)));
+              $slug = str_replace("'", "", $slug);
+              $slug = str_replace(":", "", $slug);
+              $slug = str_replace("/", "", $slug);
+              $slug = preg_replace("/[^A-Za-z0-9]/", "", $slug);
+              $new_item['slug'] = $slug;
+              
+              // This helps us get the recently awesome
+              $now = time();
+              $new_item['last_modified'] = $now;
+              
+              $request = array();
+              $request['query']['query_string']['fields'] = array('slug');
+              $request['query']['query_string']['query'] = $slug;
+              $request['query']['query_string']['default_operator'] = 'AND';
+                 
+              $jsoned_request = json_encode($request);
+              
+              $url = $this->get('ELASTICSEARCH_URL') . '_search';
+              $ch = curl_init();
+              $method = "GET";
+      
+              curl_setopt($ch, CURLOPT_URL, $url);
+              curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+              curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+              curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_request);
+      
+              $results = curl_exec($ch);
+              curl_close($ch);
+              
+              $docs = json_decode($results, True);
+      
+              $url = $this->get('ELASTICSEARCH_URL');
+      
+              // See if we already have it. If we do, just bump its awesomed (the counter field)
+              if ($docs['hits']['total'] > 0) {           
+                  $current_count = $docs['hits']['hits'][0]['_source']['clicks'];
+                  $new_item['clicks'] = $current_count;
+                  
+                  $url = $url . '/' . $docs['hits']['hits'][0]['_id'];           
+              } else {
+                  // It's not in ES. We need to add it.
+                echo "<p>$name $slug</p>";
+                 $new_item['clicks'] = 1;   
+              }
+           }
+            
+          // Send the item back to ES.
+          $jsoned_new_item = json_encode($new_item);
+          $ch = curl_init();
+          $method = "POST";
+    
+          curl_setopt($ch, CURLOPT_URL, $url);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+          curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+          curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_new_item);
+    
+          $results = curl_exec($ch);
+          curl_close($ch);  
+          sleep(5);
+            
+          // We should now have the item details stored. Let's index the Awesomed event (hollis_id and timestamp)
+          $awesomed_container = array();
+          $awesomed_container['slug'] = $slug;
+          $awesomed_container['checked_in'] = $now;
+        
+          // Send the event to ES.
+          $url = $this->get('ELASTICSEARCH_URL_CHECKED_IN');
+          $jsoned_awesomed_container = json_encode($awesomed_container);
+          $ch = curl_init();
+          $method = "POST";
+    
+          curl_setopt($ch, CURLOPT_URL, $url);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+          curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+          curl_setopt($ch, CURLOPT_POSTFIELDS, $jsoned_awesomed_container);
+    
+          $results = curl_exec($ch);
+          curl_close($ch);
+          }
+        }
+    }
     
     function categories() {
       $pages = $this->get('CATEGORIES');
@@ -579,10 +703,12 @@ class Item extends F3instance {
                 }
                 if (!empty($result['_source']['slug'])) {
                     $doc['slug'] = $result['_source']['slug'];
-                }
-                
+                } 
                 if (!empty($result['_source']['description'])) {
                     $doc['description'] = stripslashes($result['_source']['description']);
+                }
+                if (!empty($result['_source']['type'])) {
+                    $doc['type'] = $result['_source']['type'];
                 }
                 if (!empty($result['_source']['category'])) {
                     $doc['category'] = $result['_source']['category'];
@@ -593,8 +719,8 @@ class Item extends F3instance {
                 if (!empty($result['_source']['checked_in'])) {
                     $doc['checked_in'] = $result['_source']['checked_in'];
                 }
-                if (!empty($result['_source']['id'])) {
-                    $doc['id'] = $result['_source']['id'];
+                if (!empty($result['']['id'])) {
+                    $doc['id'] = $result['']['id'];
                 }
                 if (!empty($result['_source']['last_modified'])) {
                     $doc['last_modified'] = $result['_source']['last_modified'];

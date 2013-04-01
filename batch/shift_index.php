@@ -7,7 +7,7 @@
  ******************/
 
 $es_type_path = 'hlsl10.law.harvard.edu:9200/law-apps/item/';
-$backup_file_path = 'es_backup.json';
+$backup_file_path = 'es_backup' . date("Ymd") . '.json';
 
 function backup_es_type($es_type_path, $backup_file_path) {
     // Get all ES docs from the passed-in index, write them to disk
@@ -64,7 +64,7 @@ function reindex_es_type($es_type_path, $backup_file_path) {
 
 }
 
-//backup_es_type($es_type_path, $backup_file_path);
+backup_es_type($es_type_path, $backup_file_path);
 //delete_es_type($es_type_path);
 
 
