@@ -5,6 +5,7 @@ log/*.log
 web/images/db-thumbs/*
 !web/images/db-thumbs/blank*
 web/images/db-favicons/*
+!web/images/db-favicons/blank*
 batch/asset-holding-pen/thumbs/*
 !batch/asset-holding-pen/thumbs/blank*
 batch/asset-holding-pen/favicons/*

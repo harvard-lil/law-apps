@@ -13,7 +13,7 @@
 * batch/asset-holding-pen/favicons/ for results
 *
 * For the URLs that we couldn't generate a thumbnail or a favicon, we copy
-* a placeholder over. We also put a not in the approprite log file,
+* a placeholder over. We also put a note in the approprite log file,
 * in the log directory
 *
 *
@@ -38,9 +38,9 @@ $num_thumbs = 500;
 // Heavy lifting functions
 /////////////////////////////////
 
-// Given a slug a url, create a thumbnail using wkhtmlpdf and imagemagick
 function thumbnail_from_url($slug, $url) {
-
+    // Given a slug a url, create a thumbnail using wkhtmlpdf and imagemagick
+    
     global $master_config;
     global $thumbs_dir;
 
@@ -70,7 +70,7 @@ function thumbnail_from_url($slug, $url) {
     }
 }
 
-function favicon_from_url($slug, $url){
+function favicon_from_url($slug, $url) {
     // Give a slug and a url, get the favicon.
     // With Harvard online resources, we generally have to jump through proxies
 
@@ -133,7 +133,7 @@ function favicon_from_url($slug, $url){
             // something like <link rel="shortcut icon" href="favicon.ico">
 
             // A list of things that someone might call their favicon link
-            $list_of_attr = array('shortcut','icon','shortcut',' icon');
+            $list_of_attr = array('shortcut','icon','shortcut icon');
 
             $dom_doc = new DOMDocument();
 
@@ -147,7 +147,7 @@ function favicon_from_url($slug, $url){
 
             // Loop through all possible links in dom. 
             foreach($dom_doc->getElementsByTagName('link') as $link) {
-                if (in_array($link->getAttribute('rel'), $list_of_attr)) {
+                if (strtolower(in_array($link->getAttribute('rel')), $list_of_attr)) {
                     $favicon_link_in_doc = $link->getAttribute('href');
                 }
             }
@@ -205,6 +205,10 @@ function favicon_from_url($slug, $url){
     }
 }
 
+/////////////////////////////////
+// End of heavy lifting functions
+/////////////////////////////////
+
 
 /////////////////////////////////
 // Main logic
@@ -226,5 +230,9 @@ foreach ($response->docs as $doc) {
     thumbnail_from_url($doc->slug, $doc->link);
     favicon_from_url($doc->slug, $doc->link);
 }
+
+/////////////////////////////////
+// End of main logic
+/////////////////////////////////
 
 ?>
