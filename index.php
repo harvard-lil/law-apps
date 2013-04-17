@@ -10,7 +10,7 @@ $f3->set('DEBUG',3);
 $f3->config(dirname(__FILE__) . '/etc/master.ini');
 
 // Let F3 load our other things
-$autoload_path = "{$f3->get('LAW_APPS_HOME')}/api/classes/; {$f3->get('LAW_APPS_HOME')}/lib/;";
+$autoload_path = "{$f3->get('LAW_APPS_HOME')}/api/classes/; {$f3->get('LAW_APPS_HOME')}/lib/; {$f3->get('LAW_APPS_HOME')}/web/;";
 $f3->set('AUTOLOAD', $autoload_path);
 
 // API business
@@ -20,6 +20,8 @@ $f3->route('GET /api/item/guides', 'Item->populateGuides');
 $f3->route('GET /api/item/categories', 'Item->categories');
 $f3->route('POST /api/item/click', 'Item->click');
 $f3->route('GET /api/item/search', 'Item->search');
+
+$f3->route('GET /', 'web/index.html');
 
 $f3->run();
 

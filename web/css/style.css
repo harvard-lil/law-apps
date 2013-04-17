@@ -499,6 +499,12 @@ li {
 	line-height:20px;
 }
 
+li.active a {
+  display:block;
+  background-color: #a51c30;
+  color:#fff;
+}
+
 form {
 	margin-top:15px;
 }

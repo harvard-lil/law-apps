@@ -92,7 +92,7 @@
     
     <script id="categories-template" type="text/x-handlebars-template">
       {{#categories}}
-        <li id="{{displayCategory this}}" class="filter control-action">{{displayCategory this}}</li>
+        <li id="{{displayCategory this}}" class="filter control-action"><a href="category?q={{this}}">{{displayCategory this}}<a/></li>
       {{/categories}}
     </script>
 	
