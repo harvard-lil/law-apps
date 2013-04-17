@@ -1,6 +1,13 @@
 etc/master.ini
+.DS_Store
 .htaccess
 log/*.log
 web/images/db-thumbs/*
 !web/images/db-thumbs/blank*
+web/images/db-favicons/*
+!web/images/db-favicons/blank*
+batch/asset-holding-pen/thumbs/*
+!batch/asset-holding-pen/thumbs/blank*
+batch/asset-holding-pen/favicons/*
+!batch/asset-holding-pen/favicons/blank*
 batch/es_backup*
