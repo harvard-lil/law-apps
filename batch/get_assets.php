@@ -46,7 +46,7 @@ function thumbnail_from_url($slug, $url) {
 
     // Some online resources have the same slug. If we've already created a thumb for that slug, don't do anything.
     if (!file_exists($thumbs_dir . $slug . '_thumb.jpg')) {
-        exec($master_config['WKHTMLTOPDF_FS_PATH'] . ' --quiet --load-error-handling ignore -B 0 -L 0 -R 0 -T 0 ' . $url . ' ' . $thumbs_dir . $slug . '.pdf');
+        exec($master_config['WKHTMLTOPDF_FS_PATH'] . ' --quiet --ignore-load-errors -B 0 -L 0 -R 0 -T 0 ' . $url . ' ' . $thumbs_dir . $slug . '.pdf');
         exec('convert -quiet ' . $thumbs_dir . $slug . '.pdf[0] ' . $thumbs_dir . $slug . '.jpg');
         exec('convert -quiet ' . $thumbs_dir . $slug . '.jpg -resize 250x250 ' . $thumbs_dir . $slug . '_thumb.jpg');
 
